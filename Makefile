@@ -5,7 +5,7 @@ lint:
 	npx eslint .
 
 install:
-	npm ci
+	npm install
 
 start-frontend:
 	cd frontend && npm start
