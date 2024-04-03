@@ -1,15 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { io } from 'socket.io-client';
+import init from './init.jsx';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const app = async () => {
+  const root = ReactDOM.createRoot(document.querySelector('#root'));
+  const socket = io();
+  const vdom = await init(socket);
+  root.render(<React.StrictMode>{vdom}</React.StrictMode>);
+};
 
-
-reportWebVitals();
+app();
