@@ -1,47 +1,36 @@
+/* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
-import { channelsApi } from '../Api/channelsApi.js';
+
+const defaultChannelId = '1';
 
 const slice = createSlice({
-  name: 'ui',
+  name: 'channels',
   initialState: {
     currentChannelId: '1',
-    defaultChannelId: '1',
-    modal: {
-      isOpened: false,
-      type: null,
-      extra: null,
-    },
+    channels: [],
   },
   reducers: {
-    setCurrentChannel(state, { payload }) {
-      const { channelId } = payload;
-      state.currentChannelId = channelId;
+    addChannels: (state, { payload }) => {
+      state.channels = payload;
     },
-    openModal: (state, { payload }) => {
-      const { type, extra } = payload;
-      state.modal.isOpened = true;
-      state.modal.type = type;
-      state.modal.extra = extra ?? null;
+    addChannel: (state, { payload }) => {
+      state.channels.push(payload);
     },
-    closeModal: (state) => {
-      state.modal.isOpened = false;
-      state.modal.type = null;
-      state.modal.extra = null;
+    removeChannel: (state, { payload }) => {
+      const newChannels = state.channels.filter((channel) => channel.id !== payload);
+      state.channels = newChannels;
+      if (state.currentChannelId === payload) {
+        state.currentChannelId = defaultChannelId;
+      }
     },
-  },
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      channelsApi.endpoints.addChannel.matchFulfilled,
-      (state, action) => {
-        state.currentChannelId = action.payload.id;
-      },
-    );
-    builder.addMatcher(
-      channelsApi.endpoints.deleteChannel.matchFulfilled,
-      (state) => {
-        state.currentChannelId = state.defaultChannelId;
-      },
-    );
+    renameChannel: (state, { payload }) => {
+      const renamingChannel = state.channels.find((channel) => channel.id === payload.id);
+      renamingChannel.name = payload.name;
+    },
+    setCurrentChannel: (state, { payload }) => {
+      const { id } = payload;
+      state.currentChannelId = id;
+    },
   },
 });
 

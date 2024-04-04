@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ChatPage from './ChatPage';
 import ErrorPage from './ErrorPage';
 import LoginPage from './LoginPage';
+import Header from './Header.jsx';
 import { useLocation } from 'react-router-dom';
 
 const AuthProvider = ({ children }) => {
@@ -38,21 +39,28 @@ const PrivateRoute = ({ children }) => {
   );
 };
 
-const App = () => {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
+const App = () => (
+  <AuthProvider>
+    <BrowserRouter>
+      <div className="d-flex flex-column h-100">
+        <Header />
         <Routes>
           <Route path="*" element={<ErrorPage />} />
-          <Route path="/" element={(
-            <PrivateRoute>
-              <ChatPage />
-            </PrivateRoute>)} />
-          <Route path="login" element={<LoginPage />} />
+          <Route path={routes.signup()} element={<SignUpPage />} />
+          <Route
+            path={routes.main()}
+            element={(
+              <PrivateRoute>
+                <ChatPage />
+              </PrivateRoute>
+            )}
+          />
+          <Route path={routes.login()} element={<LoginPage />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
-}
+        <ToastContainer />
+      </div>
+    </BrowserRouter>
+  </AuthProvider>
+);
 
 export default App;
