@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { io } from 'socket.io-client';
-import init from './init.jsx';
-import './index.css';
+import init from './init';
 
 const app = async () => {
   const root = ReactDOM.createRoot(document.querySelector('#root'));

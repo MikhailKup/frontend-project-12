@@ -1,17 +1,12 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import ui, { actions } from './channelsSlice.js';
-import { channelsApi } from '../Api/channelsApi.js';
-import { messagesApi } from '../Api/messagesApi.js';
+import { configureStore } from '@reduxjs/toolkit';
+import channelsReducers from './channelsSlice.js';
+import messagesReducers from './messagesSlice.js';
+import modals from './modalsSlice.js';
 
-const defaultChannelId = 1;
-
-export {
-  actions,
-  defaultChannelId,
-};
-
-export default combineReducers({
-  ui,
-  [channelsApi.reducerPath]: channelsApi.reducer,
-  [messagesApi.reducerPath]: messagesApi.reducer,
+export default configureStore({
+  reducer: {
+    channels: channelsReducers,
+    messages: messagesReducers,
+    modals,
+  },
 });
