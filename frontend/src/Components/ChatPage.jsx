@@ -5,15 +5,17 @@ import ChatBox from './ChatBox.jsx';
 import { useGetChannels } from '../Api/channelsApi.js';
 import { useGetMessages } from '../Api/messagesApi.js';
 import Modal from './Modals.jsx';
+import { useTranslation } from 'react-i18next';
 
 const ChatPage = () => {
+	const { t } = useTranslation();
 	const { isLoading: isChannelsLoading } = useGetChannels();
   const { isLoading: isMessagessLoading } = useGetMessages();
   return isChannelsLoading || isMessagessLoading
     ? (
       <div className="h-100 d-flex justify-content-center align-items-center">
         <Spinner animation="border" role="status" variant="primary">
-          <span className="visually-hidden">Загрузка</span>
+					<span className="visually-hidden">{t('loading')}</span>
         </Spinner>
       </div>
     )

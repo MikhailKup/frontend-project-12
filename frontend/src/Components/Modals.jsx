@@ -5,34 +5,34 @@ import {
   Button,
 } from 'react-bootstrap';
 import { useFormik } from 'formik';
+import axios from 'axios';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-
-import { actions } from '../Slices/index.js';
-import {
-  useAddChannel,
-  useUpdateChannel,
-  useDeleteChannel,
-  useGetChannels,
-} from '../Api/channelsApi.js';
-
-const getValidationSchema = (channels) => yup.object().shape({
-  name: yup
-    .string()
-    .trim()
-    .required('Поле обязательно для заполнения')
-    .min(1, 'Минимальное количество симовлов: 1')
-    .notOneOf(channels, 'Имя канала не дожно совпадать с ост'),
-});
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import { actions as channelsActions } from '../Slices/channelsSlice.js';
+import { actions as modalsActions } from '../Slices/modalsSlice.js';
+import useAuth, { useFilter } from '../Hooks/index';
+import routes from '../Routes/routes.js';
 
 const AddChannelForm = ({ handleClose }) => {
-  const { data: channels } = useGetChannels(undefined);
+  const channels = useSelector((state) => state.channels.channels);
   const channelNames = channels.map(({ name }) => name);
   const inputRef = useRef(null);
-  const [
-    addChannel,
-    { error, isLoading },
-  ] = useAddChannel();
+  const { t } = useTranslation();
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+  const filter = useFilter();
+
+  const getValidationSchema = (channelsNames) => yup.object().shape({
+    name: yup
+      .string()
+      .trim()
+      .required(t('modals.required'))
+      .min(1, t('modals.minName'))
+      .max(20, t('modals.maxName'))
+      .notOneOf(channelsNames, t('modals.uniq')),
+  });
 
   useEffect(() => {
     inputRef.current.focus();
@@ -44,9 +44,25 @@ const AddChannelForm = ({ handleClose }) => {
     },
     validationSchema: getValidationSchema(channelNames),
     onSubmit: async ({ name }) => {
-      getValidationSchema(channelNames).validateSync({ name });
-      addChannel({ name });
-      handleClose();
+      try {
+        const header = { Authorization: `Bearer ${getToken()}` };
+        const filteredName = filter.clean(name);
+        const channel = { name: filteredName };
+        getValidationSchema(channelNames).validateSync({ name: filteredName });
+        const { data } = await axios.post(routes.channelsPath(), channel, {
+          headers: header,
+        });
+        toast.success(t('toast.add'));
+        handleClose();
+        dispatch(channelsActions.setCurrentChannel(data));
+      } catch (error) {
+        if (!error.isAxiosError) {
+          console.log(error);
+          toast.error(t('errors.unknown'));
+        } else {
+          toast.error(t('errors.network'));
+        }
+      }
     },
     validateOnBlur: false,
     validateOnChange: false,
@@ -55,7 +71,7 @@ const AddChannelForm = ({ handleClose }) => {
   return (
     <>
       <BootstrapModal.Header>
-        <BootstrapModal.Title>Добавить</BootstrapModal.Title>
+        <BootstrapModal.Title>{t('modals.addTitle')}</BootstrapModal.Title>
         <Button
           variant="close"
           type="button"
@@ -78,7 +94,7 @@ const AddChannelForm = ({ handleClose }) => {
               name="name"
               id="name"
             />
-            <label className="visually-hidden" htmlFor="name">Название канала</label>
+            <label className="visually-hidden" htmlFor="name">{t('modals.modalName')}</label>
             <Form.Control.Feedback type="invalid">
               {formik.errors.name || formik.status}
             </Form.Control.Feedback>
@@ -89,14 +105,14 @@ const AddChannelForm = ({ handleClose }) => {
                 type="button"
                 onClick={handleClose}
               >
-                Отменить
+                {t('modals.cancelButton')}
               </Button>
               <Button
                 variant="primary"
                 type="submit"
                 disabled={formik.isSubmitting}
               >
-                Отправить
+                {t('modals.confirmButton')}
               </Button>
             </div>
           </Form.Group>
@@ -108,21 +124,34 @@ const AddChannelForm = ({ handleClose }) => {
 
 const RemoveChannelForm = ({ handleClose }) => {
   const [loading, setLoading] = useState(false);
-  const [
-    deleteChannel,
-    { error, isLoading },
-  ] = useDeleteChannel();
-  const channelId = useSelector((state) => state.ui.modal.extra?.channelId);
+  const { t } = useTranslation();
+  const { getToken } = useAuth();
+
+  const channelId = useSelector((state) => state.modals.modal.extra?.channelId);
   const handleRemove = async () => {
     setLoading(true);
-    deleteChannel(channelId);
-    handleClose();
+    try {
+      const header = { Authorization: `Bearer ${getToken()}` };
+      await axios.delete(`${routes.channelsPath()}/${channelId}`, {
+        headers: header,
+      });
+      toast.success(t('toast.remove'));
+      handleClose();
+    } catch (error) {
+      if (!error.isAxiosError) {
+        toast.error(t('errors.unknown'));
+      } else {
+        toast.error(t('errors.network'));
+      }
+      setLoading(false);
+      throw error;
+    }
   };
 
   return (
     <>
       <BootstrapModal.Header>
-        <BootstrapModal.Title>Удалить</BootstrapModal.Title>
+        <BootstrapModal.Title>{t('modals.removeTitle')}</BootstrapModal.Title>
         <Button
           variant="close"
           type="button"
@@ -132,7 +161,7 @@ const RemoveChannelForm = ({ handleClose }) => {
         />
       </BootstrapModal.Header>
       <BootstrapModal.Body>
-        <p className="lead">Подтвердить</p>
+        <p className="lead">{t('modals.sure')}</p>
         <div className="d-flex justify-content-end">
           <Button
             className="me-2"
@@ -141,7 +170,7 @@ const RemoveChannelForm = ({ handleClose }) => {
             onClick={handleClose}
             disabled={loading}
           >
-            Отменить
+            {t('modals.cancelButton')}
           </Button>
           <Button
             variant="danger"
@@ -149,7 +178,7 @@ const RemoveChannelForm = ({ handleClose }) => {
             onClick={handleRemove}
             disabled={loading}
           >
-            Удалить
+            {t('modals.confirmRemove')}
           </Button>
         </div>
       </BootstrapModal.Body>
@@ -158,15 +187,25 @@ const RemoveChannelForm = ({ handleClose }) => {
 };
 
 const RenameChannelForm = ({ handleClose }) => {
-  const { data: channels } = useGetChannels(undefined);
+  const channels = useSelector((state) => state.channels.channels);
   const channelNames = channels.map(({ name }) => name);
-  const channelId = useSelector((state) => state.ui.modal.extra?.channelId);
+  const channelId = useSelector((state) => state.modals.modal.extra?.channelId);
   const channel = channels.find(({ id }) => channelId === id);
   const inputRef = useRef(null);
-  const [
-    updateChannel,
-    { error, isLoading },
-  ] = useUpdateChannel();
+  const { t } = useTranslation();
+  const { getToken } = useAuth();
+  const filter = useFilter();
+
+  const getValidationSchema = (channelsNames) => yup.object().shape({
+    name: yup
+      .string()
+      .trim()
+      .required(t('modals.required'))
+      .min(1, t('modals.minName'))
+      .max(20, t('modals.maxName'))
+      .notOneOf(channelsNames, t('modals.uniq')),
+  });
+
   useEffect(() => {
     setTimeout(() => inputRef.current.select());
   }, []);
@@ -176,9 +215,14 @@ const RenameChannelForm = ({ handleClose }) => {
     },
     validationSchema: getValidationSchema(channelNames),
     onSubmit: async ({ name }) => {
-      const data = { name, id: channelId };
-      getValidationSchema(channelNames).validateSync({ name });
-      updateChannel(data);
+      const header = { Authorization: `Bearer ${getToken()}` };
+      const filteredName = filter.clean(name);
+      const data = { name: filteredName, id: channelId };
+      getValidationSchema(channelNames).validateSync({ name: filteredName });
+      await axios.patch(`${routes.channelsPath()}/${channelId}`, data, {
+        headers: header,
+      });
+      toast.success(t('toast.rename'));
       handleClose();
     },
     validateOnBlur: false,
@@ -188,7 +232,7 @@ const RenameChannelForm = ({ handleClose }) => {
   return (
     <>
       <BootstrapModal.Header>
-        <BootstrapModal.Title>Переименовать</BootstrapModal.Title>
+        <BootstrapModal.Title>{t('modals.renameTitle')}</BootstrapModal.Title>
         <Button
           variant="close"
           type="button"
@@ -211,7 +255,7 @@ const RenameChannelForm = ({ handleClose }) => {
               name="name"
               id="name"
             />
-            <label className="visually-hidden" htmlFor="name">Название канала</label>
+            <label className="visually-hidden" htmlFor="name">{t('modals.modalName')}</label>
             <Form.Control.Feedback type="invalid">
               {formik.errors.name || formik.status}
             </Form.Control.Feedback>
@@ -222,14 +266,14 @@ const RenameChannelForm = ({ handleClose }) => {
                 type="button"
                 onClick={handleClose}
               >
-                Отменить
+                {t('modals.cancelButton')}
               </Button>
               <Button
                 variant="primary"
                 type="submit"
                 disabled={formik.isSubmitting}
               >
-                Отправить
+                {t('modals.confirmButton')}
               </Button>
             </div>
           </Form.Group>
@@ -247,12 +291,12 @@ const mapping = {
 
 const Modal = () => {
   const dispatch = useDispatch();
-  const isOpened = useSelector((state) => state.ui.modal.isOpened);
+  const isOpened = useSelector((state) => state.modals.modal.isOpened);
 
   const handleClose = () => {
-    dispatch(actions.closeModal());
+    dispatch(modalsActions.closeModal());
   };
-  const modalType = useSelector((state) => state.ui.modal.type);
+  const modalType = useSelector((state) => state.modals.modal.type);
 
   const Component = mapping[modalType];
 
