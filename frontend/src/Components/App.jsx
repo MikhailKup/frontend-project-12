@@ -1,31 +1,48 @@
+/* eslint-disable react/jsx-no-constructed-context-values */
 import React, { useState } from 'react';
+import {
+  BrowserRouter, Routes, Route, Navigate,
+  useLocation,
+} from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import AuthContext from '../Contexts/index.jsx';
 import useAuth from '../Hooks/index.jsx';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ChatPage from './ChatPage';
 import ErrorPage from './ErrorPage';
 import LoginPage from './LoginPage';
 import Header from './Header.jsx';
 import SignUpPage from './SignUpPage.jsx';
-import { useLocation } from 'react-router-dom';
+import routes from '../Routes/routes.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AuthProvider = ({ children }) => {
-  const currentUser = JSON.parse(localStorage.getItem('user'));
+  const currentUser = JSON.parse(localStorage.getItem('userId'));
   const [loggedIn, setLoggedIn] = useState(currentUser ? { username: currentUser.username } : null);
 
-  const logIn = () => setLoggedIn(true);
+  const logIn = (loginData) => {
+    localStorage.setItem('userId', JSON.stringify(loginData));
+    setLoggedIn(true);
+  };
   const logOut = () => {
     localStorage.removeItem('userId');
     setLoggedIn(false);
   };
-  const getAuthHeader = () => {
-    const userData = JSON.parse(localStorage.getItem('user'));
+  const getToken = () => {
+    const userData = JSON.parse(localStorage.getItem('userId'));
 
-    return userData?.token ? { Authorization: `Bearer ${userData.token}` } : {};
+    return userData?.token ? userData.token : {};
   };
 
   return (
-    <AuthContext.Provider value={{ loggedIn, logIn, logOut, getAuthHeader }}>
+    <AuthContext.Provider value={{
+      currentUser,
+      loggedIn,
+      logIn,
+      logOut,
+      getToken,
+    }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -36,7 +53,7 @@ const PrivateRoute = ({ children }) => {
   const location = useLocation();
 
   return (
-    auth.loggedIn ? children : <Navigate to="/login" state={{ from: location }} />
+    auth.loggedIn ? children : <Navigate to={routes.login()} state={{ from: location }} />
   );
 };
 
@@ -47,14 +64,14 @@ const App = () => (
         <Header />
         <Routes>
           <Route path="*" element={<ErrorPage />} />
-          <Route path="signup" element={<SignUpPage />} />
+          <Route path={routes.signup()} element={<SignUpPage />} />
           <Route
             path={routes.main()}
             element={(
               <PrivateRoute>
                 <ChatPage />
               </PrivateRoute>
-            )}
+)}
           />
           <Route path={routes.login()} element={<LoginPage />} />
         </Routes>

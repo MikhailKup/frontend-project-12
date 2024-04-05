@@ -10,25 +10,25 @@ import {
 } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import useAuth from '../Hooks/index.jsx';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import useAuth from '../Hooks/index.jsx';
+import routes from '../Routes/routes.js';
 
 const LoginPage = () => {
-	const auth = useAuth();
+  const { logIn } = useAuth();
   const [authFailed, setAuthFailed] = useState(false);
   const navigate = useNavigate();
-	const inputRef = useRef();
+  const inputRef = useRef();
   useEffect(() => {
     inputRef.current.focus();
   }, []);
-	const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const signInSchema = Yup.object().shape({
     username: Yup.string().required(t('schema.required')),
     password: Yup.string().required(t('schema.required')),
-  })
-
-  const submit = () => console.log('success')
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -40,18 +40,22 @@ const LoginPage = () => {
       setAuthFailed(false);
 
       try {
-        const res = await axios.post('/api/v1/login', values);
-        localStorage.setItem('userId', JSON.stringify(res.data));
-        auth.logIn();
-        navigate("/");
+        const res = await axios.post(routes.loginPath(), values);
+        logIn(res.data);
+        navigate(routes.main());
       } catch (err) {
         formik.setSubmitting(false);
-        if (err.isAxiosError && err.response.status === 401) {
-          setAuthFailed(true);
-          inputRef.current.select();
+        if (!err.isAxiosError) {
+          toast.error(t('toast.unknown'));
           return;
         }
-        throw err;
+
+        if (err.response?.status === 401) {
+          setAuthFailed(true);
+          inputRef.current.select();
+        } else {
+          toast.error(t('toast.network'));
+        }
       }
     },
   });
@@ -63,7 +67,7 @@ const LoginPage = () => {
           <Card style={{ width: '30rem' }} className="text-center shadow-sm">
             <Card.Body className="row">
               <Form className="form-container mt-3 mt-mb-0" onSubmit={formik.handleSubmit}>
-								<h2 className="text-center mb-4">{t('login.enter')}</h2>
+                <h2 className="text-center mb-4">{t('login.enter')}</h2>
                 <Form.Group className="form-floating mb-3">
                   <Form.Control
                     id="username"
@@ -90,18 +94,18 @@ const LoginPage = () => {
                   <Form.Label htmlFor="password">{t('login.password')}</Form.Label>
                 </Form.Group>
                 <Button className="w-100 mb-3" variant="primary" type="submit">
-									{t('login.enter')}
+                  {t('login.enter')}
                 </Button>
               </Form>
             </Card.Body>
           </Card>
         </Row>
       </Container>
-			<div className="card-footer p-4">
+      <div className="card-footer p-4">
         <div className="text-center">
           <span>{t('login.noAccount')}</span>
           {' '}
-          <Link to="/signup">{t('login.register')}</Link>
+          <Link to={routes.signup()}>{t('login.register')}</Link>
         </div>
       </div>
     </>

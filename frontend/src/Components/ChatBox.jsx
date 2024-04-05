@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import { animateScroll } from 'react-scroll';
 import { useSelector } from 'react-redux';
-import { useGetChannels } from '../Api/channelsApi.js';
-import { useGetMessages } from '../Api/messagesApi.js';
-import MessagesForm from './MessagesForm.jsx';
 import { useTranslation } from 'react-i18next';
+import MessagesForm from './MessagesForm.jsx';
 
 const Message = ({ username, body }) => (
   <div className="text-break mb-2">
@@ -15,19 +13,19 @@ const Message = ({ username, body }) => (
 );
 
 const ChatBox = () => {
-	const { t } = useTranslation();
-  const { data: channels } = useGetChannels(undefined);
-  const { data: allMessages } = useGetMessages(undefined);
+  const { t } = useTranslation();
+  const channels = useSelector((state) => state.channels.channels);
+  const allMessages = useSelector((state) => state.messages.messages);
 
   const channel = useSelector((state) => {
-    const { currentChannelId } = state.ui;
-    return channels?.find((channel) => channel.id === currentChannelId);
+    const { currentChannelId } = state.channels;
+    return channels?.find((item) => item.id === currentChannelId);
   });
 
   const messages = useSelector((state) => {
-    const { currentChannelId } = state.ui;
-    const channelMessages = allMessages?.filter((message) => message.channelId === currentChannelId);
-    return channelMessages;
+    const { currentChannelId } = state.channels;
+    const channelMessage = allMessages?.filter((message) => message.channelId === currentChannelId);
+    return channelMessage;
   });
 
   useEffect(() => {
@@ -43,7 +41,7 @@ const ChatBox = () => {
           </b>
         </p>
         <span className="text-muted">
-				{`${t('messages.message', { count: messages.length })}`}
+          {`${t('messages.message', { count: messages.length })}`}
         </span>
       </div>
       <div id="messages-box" className="chat-messages overflow-auto px-5 ">

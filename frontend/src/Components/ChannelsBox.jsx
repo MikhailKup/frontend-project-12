@@ -13,7 +13,7 @@ const Channel = ({
   handleRemove,
   handleRename,
 }) => {
-	const { t } = useTranslation();
+  const { t } = useTranslation();
   const variant = isCurrent ? 'secondary' : null;
 
   return (
@@ -57,7 +57,7 @@ const Channel = ({
 };
 
 const ChannelsBox = () => {
-	const { t } = useTranslation();
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { data: channels } = useGetChannels(undefined);
 
@@ -79,7 +79,7 @@ const ChannelsBox = () => {
   return (
     <>
       <div className="d-flex mt-1 justify-content-between mb-2 ps-4 pe-2 p-4">
-				<b>{t('channel.channels')}</b>
+        <b>{t('channel.channels')}</b>
         <Button
           type="button"
           variant="group-vertical"
