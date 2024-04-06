@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Dropdown, ButtonGroup } from 'react-bootstrap';
+import { animateScroll } from 'react-scroll';
 import { PlusSquare } from 'react-bootstrap-icons';
 import { useTranslation } from 'react-i18next';
-import { actions } from '../Slices/index.js';
-import { useGetChannels } from '../Api/channelsApi.js';
+import { actions as channelsActions } from '../Slices/channelsSlice.js';
+import { actions as modalsActions } from '../Slices/modalsSlice.js';
 
 const Channel = ({
   channel,
@@ -59,21 +60,31 @@ const Channel = ({
 const ChannelsBox = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { data: channels } = useGetChannels(undefined);
+  const channels = useSelector((state) => state.channels.channels);
+  const currentChannelId = useSelector((state) => state.channels.currentChannelId);
+  const defaultChannelId = useSelector((state) => state.channels.defaultChannelId);
+  const lastChannelsItemId = channels.at(-1)?.id;
 
-  const currentChannelId = useSelector((state) => state.ui.currentChannelId);
+  useEffect(() => {
+    if (currentChannelId === defaultChannelId) {
+      animateScroll.scrollToTop({ containerId: 'channels-box', delay: 0, duration: 0 });
+    }
+    if (currentChannelId === lastChannelsItemId) {
+      animateScroll.scrollToBottom({ containerId: 'channels-box', delay: 0, duration: 0 });
+    }
+  }, [currentChannelId, lastChannelsItemId, defaultChannelId]);
 
-  const handleChooseChannel = (channelId) => () => {
-    dispatch(actions.setCurrentChannel({ channelId }));
+  const handleChooseChannel = (id) => () => {
+    dispatch(channelsActions.setCurrentChannel({ id }));
   };
   const handleAddChannel = () => {
-    dispatch(actions.openModal({ type: 'addChannel' }));
+    dispatch(modalsActions.openModal({ type: 'addChannel' }));
   };
   const handleRemoveChannel = (channelId) => () => {
-    dispatch(actions.openModal({ type: 'removeChannel', extra: { channelId } }));
+    dispatch(modalsActions.openModal({ type: 'removeChannel', extra: { channelId } }));
   };
   const handleRenameChannel = (channelId) => () => {
-    dispatch(actions.openModal({ type: 'renameChannel', extra: { channelId } }));
+    dispatch(modalsActions.openModal({ type: 'renameChannel', extra: { channelId } }));
   };
 
   return (

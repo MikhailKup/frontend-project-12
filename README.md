@@ -2,8 +2,22 @@
 [![Actions Status](https://github.com/MikhailKup/frontend-project-12/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/MikhailKup/frontend-project-12/actions)
 
 
-## Slack chat copy
+# Slack chat copy
 
-
-### Description
+## Description
 A convenient and intuitive application that allows you to chat with friends, colleagues or casual interlocutors online
+
+## Project start commands
+
+* Back-end start
+```
+npm start
+```
+
+* Front-end start
+
+```
+cd frontend && npm start
+```
+
+## Preview here:

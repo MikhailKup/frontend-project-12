@@ -1,18 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import { Form, InputGroup, Button } from 'react-bootstrap';
+import axios from 'axios';
 import { Send } from 'react-bootstrap-icons';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import filter from 'leo-profanity';
-
-import { useAddMessage } from '../Api/messagesApi.js';
+import { toast } from 'react-toastify';
+import useAuth, { useFilter } from '../Hooks/index.jsx';
+import routes from '../Routes/routes.js';
 
 const MessagesForm = ({ channel }) => {
   const { t } = useTranslation();
-  const { username } = JSON.parse(localStorage.getItem('userId'));
+  const { currentUser, getToken } = useAuth();
   const inputRef = useRef(null);
-  const [addMessage] = useAddMessage();
+  const { username } = currentUser;
+  const filter = useFilter();
 
   const validationSchema = yup.object().shape({
     body: yup
@@ -30,11 +32,22 @@ const MessagesForm = ({ channel }) => {
         channelId: channel.id,
         username,
       };
-
-      addMessage(message);
-      formik.resetForm();
-      formik.setSubmitting(false);
-      inputRef.current.focus();
+      try {
+        const header = { Authorization: `Bearer ${getToken()}` };
+        await axios.post(routes.messagesPath(), message, {
+          headers: header,
+        });
+        formik.resetForm();
+        formik.setSubmitting(false);
+        inputRef.current.focus();
+      } catch (error) {
+        if (!error.isAxiosError) {
+          toast.error(t('errors.unknown'));
+        } else {
+          toast.error(t('errors.network'));
+        }
+        throw error;
+      }
     },
     validateOnBlur: false,
   });
