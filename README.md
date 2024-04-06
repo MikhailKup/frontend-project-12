@@ -1,6 +1,6 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/MikhailKup/frontend-project-12/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/MikhailKup/frontend-project-12/actions)
-
+[![Maintainability](https://api.codeclimate.com/v1/badges/607dd34f7b6bc1e02e49/maintainability)](https://codeclimate.com/github/MikhailKup/frontend-project-12/maintainability)
 
 # Slack chat copy
 
@@ -15,7 +15,6 @@ npm start
 ```
 
 * Front-end start
-
 ```
 cd frontend && npm start
 ```
