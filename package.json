@@ -12,7 +12,9 @@
   "author": "MikhailKup",
   "license": "ISC",
   "dependencies": {
-    "@hexlet/chat-server": "^2.0.3"
+    "@hexlet/chat-server": "^2.0.3",
+    "@rollbar/react": "^0.12.0-beta",
+    "rollbar": "^2.26.4"
   },
   "devDependencies": {
     "eslint-plugin-functional": "^6.4.0"
