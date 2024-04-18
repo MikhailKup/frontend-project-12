@@ -1,14 +1,17 @@
-const apiPath = '/api/v1';
+const baseApiPath = '/api/v1';
 
-const routes = {
-  loginPath: () => [apiPath, 'login'].join('/'),
-  usersPath: () => [apiPath, 'data'].join('/'),
-  signUpPath: () => [apiPath, 'signup'].join('/'),
-  channelsPath: () => [apiPath, 'channels'].join('/'),
-  messagesPath: () => [apiPath, 'messages'].join('/'),
-  main: () => '/',
-  login: () => '/login',
-  signup: () => '/signup',
+export default {
+  apiPaths: {
+    loginPath: () => [baseApiPath, 'login'].join('/'),
+    signupPath: () => [baseApiPath, 'signup'].join('/'),
+    channelsPath: () => [baseApiPath, 'channels'].join('/'),
+    channelPath: (channelId) => [baseApiPath, 'channels', channelId].join('/'),
+    messagesPath: () => [baseApiPath, 'messages'].join('/'),
+    messagePath: (messageId) => [baseApiPath, 'messages', messageId].join('/'),
+  },
+  pagesPaths: {
+    mainPage: () => '/',
+    loginPage: () => '/login',
+    signupPage: () => '/signup',
+  },
 };
-
-export default routes;

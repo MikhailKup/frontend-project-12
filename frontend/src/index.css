@@ -1,2 +1,7 @@
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'react-toastify/dist/ReactToastify.css';
+html, body{
+  height:100%;
+}
+
+#messages-box{
+  scrollbar-width: thin;
+}
