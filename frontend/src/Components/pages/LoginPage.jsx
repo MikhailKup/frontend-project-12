@@ -62,7 +62,7 @@ const Login = () => {
       <Container fluid="sm" className="justify-content-center d-flex pt-5">
         <Card bg="light" style={{ width: '30rem' }}>
           <Card.Header as="h2" className="text-center">
-            ChatKit
+            Slack Chat
           </Card.Header>
           <Card.Body className="m-3">
             <Form
