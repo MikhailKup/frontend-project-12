@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run build --prefix frontend",
-    "start": "start-server -s ./frontend/build",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx start-server -s ./frontend/build",
     "postinstall": "cd frontend && npm ci"
   },
   "author": "MikhailKup",
@@ -17,6 +16,7 @@
     "rollbar": "^2.26.4"
   },
   "devDependencies": {
-    "eslint-plugin-functional": "^6.4.0"
+    "@playwright/test": "^1.43.0",
+    "@types/node": "^20.12.5"
   }
 }

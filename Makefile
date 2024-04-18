@@ -1,21 +1,20 @@
 lint-frontend:
-	cd frontend && npx eslint .
-
-lint:
-	npx eslint .
-
+		make -C frontend lint
 install:
-	npm install
+		npm ci
 
 start-frontend:
-	cd frontend && npm start
+		make -C frontend start
 
 start-backend:
-	npm start
+		npx start-server -s ./frontend/build
 
 start:
-	make start-backend & make start-frontend
+		make start-backend
+
+develop:
+		make start-backend & make start-frontend
 
 build:
-	rm frontend/build -rf
-	npm run build
+		rm frontend/build -rf
+		npm run build
