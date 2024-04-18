@@ -1,310 +1,316 @@
-import React, { useRef, useEffect, useState } from 'react';
-import {
-  Modal as BootstrapModal,
-  Form,
-  Button,
-} from 'react-bootstrap';
-import { useFormik } from 'formik';
-import axios from 'axios';
-import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
-import { actions as channelsActions } from '../Slices/channelsSlice.js';
-import { actions as modalsActions } from '../Slices/modalsSlice.js';
-import useAuth, { useFilter } from '../Hooks/index';
-import routes from '../Routes/routes.js';
+import axios from 'axios'
+import { useFormik } from 'formik'
+import React, { useEffect, useRef, useState } from 'react'
+import { Modal as BootstrapModal, Button, Form } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
+import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import * as yup from 'yup'
+import useAuth, { useFilter } from '../hooks/index'
+import routes from '../routes/routes.js'
+import { actions as channelsActions } from '../slices/channelsSlice.js'
+import { actions as modalsActions } from '../slices/modalsSlice.js'
 
 const AddChannelForm = ({ handleClose }) => {
-  const channels = useSelector((state) => state.channels.channels);
-  const channelNames = channels.map(({ name }) => name);
-  const inputRef = useRef(null);
-  const { t } = useTranslation();
-  const { getToken } = useAuth();
-  const dispatch = useDispatch();
-  const filter = useFilter();
+	const channels = useSelector(state => state.channels.channels)
+	const channelNames = channels.map(({ name }) => name)
+	const inputRef = useRef(null)
+	const { t } = useTranslation()
+	const { getToken } = useAuth()
+	const dispatch = useDispatch()
+	const filter = useFilter()
 
-  const getValidationSchema = (channelsNames) => yup.object().shape({
-    name: yup
-      .string()
-      .trim()
-      .required(t('modals.required'))
-      .min(1, t('modals.minName'))
-      .max(20, t('modals.maxName'))
-      .notOneOf(channelsNames, t('modals.uniq')),
-  });
+	const getValidationSchema = channelsNames =>
+		yup.object().shape({
+			name: yup
+				.string()
+				.trim()
+				.required(t('modals.required'))
+				.min(1, t('modals.minName'))
+				.max(20, t('modals.maxName'))
+				.notOneOf(channelsNames, t('modals.uniq')),
+		})
 
-  useEffect(() => {
-    inputRef.current.focus();
-  }, []);
+	useEffect(() => {
+		inputRef.current.focus()
+	}, [])
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-    },
-    validationSchema: getValidationSchema(channelNames),
-    onSubmit: async ({ name }) => {
-      try {
-        const header = { Authorization: `Bearer ${getToken()}` };
-        const filteredName = filter.clean(name);
-        const channel = { name: filteredName };
-        getValidationSchema(channelNames).validateSync({ name: filteredName });
-        const { data } = await axios.post(routes.channelsPath(), channel, {
-          headers: header,
-        });
-        toast.success(t('toast.add'));
-        handleClose();
-        dispatch(channelsActions.setCurrentChannel(data));
-      } catch (error) {
-        if (!error.isAxiosError) {
-          console.log(error);
-          toast.error(t('errors.unknown'));
-        } else {
-          toast.error(t('errors.network'));
-        }
-      }
-    },
-    validateOnBlur: false,
-    validateOnChange: false,
-  });
+	const formik = useFormik({
+		initialValues: {
+			name: '',
+		},
+		validationSchema: getValidationSchema(channelNames),
+		onSubmit: async ({ name }) => {
+			try {
+				const header = { Authorization: `Bearer ${getToken()}` }
+				const filteredName = filter.clean(name)
+				const channel = { name: filteredName }
+				getValidationSchema(channelNames).validateSync({ name: filteredName })
+				const { data } = await axios.post(routes.channelsPath(), channel, {
+					headers: header,
+				})
+				toast.success(t('toast.add'))
+				handleClose()
+				dispatch(channelsActions.setCurrentChannel(data))
+			} catch (error) {
+				if (!error.isAxiosError) {
+					console.log(error)
+					toast.error(t('errors.unknown'))
+				} else {
+					toast.error(t('errors.network'))
+				}
+			}
+		},
+		validateOnBlur: false,
+		validateOnChange: false,
+	})
 
-  return (
-    <>
-      <BootstrapModal.Header>
-        <BootstrapModal.Title>{t('modals.addTitle')}</BootstrapModal.Title>
-        <Button
-          variant="close"
-          type="button"
-          onClick={handleClose}
-          aria-label="Close"
-          data-bs-dismiss="modal"
-        />
-      </BootstrapModal.Header>
-      <BootstrapModal.Body>
-        <Form onSubmit={formik.handleSubmit}>
-          <Form.Group>
-            <Form.Control
-              className="mb-2"
-              disabled={formik.isSubmitting}
-              ref={inputRef}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.name}
-              isInvalid={(formik.errors.name && formik.touched.name) || !!formik.status}
-              name="name"
-              id="name"
-            />
-            <label className="visually-hidden" htmlFor="name">{t('modals.modalName')}</label>
-            <Form.Control.Feedback type="invalid">
-              {formik.errors.name || formik.status}
-            </Form.Control.Feedback>
-            <div className="d-flex justify-content-end">
-              <Button
-                className="me-2"
-                variant="secondary"
-                type="button"
-                onClick={handleClose}
-              >
-                {t('modals.cancelButton')}
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                disabled={formik.isSubmitting}
-              >
-                {t('modals.confirmButton')}
-              </Button>
-            </div>
-          </Form.Group>
-        </Form>
-      </BootstrapModal.Body>
-    </>
-  );
-};
+	return (
+		<>
+			<BootstrapModal.Header>
+				<BootstrapModal.Title>{t('modals.addTitle')}</BootstrapModal.Title>
+				<Button
+					variant='close'
+					type='button'
+					onClick={handleClose}
+					aria-label='Close'
+					data-bs-dismiss='modal'
+				/>
+			</BootstrapModal.Header>
+			<BootstrapModal.Body>
+				<Form onSubmit={formik.handleSubmit}>
+					<Form.Group>
+						<Form.Control
+							className='mb-2'
+							disabled={formik.isSubmitting}
+							ref={inputRef}
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.name}
+							isInvalid={
+								(formik.errors.name && formik.touched.name) || !!formik.status
+							}
+							name='name'
+							id='name'
+						/>
+						<label className='visually-hidden' htmlFor='name'>
+							{t('modals.modalName')}
+						</label>
+						<Form.Control.Feedback type='invalid'>
+							{formik.errors.name || formik.status}
+						</Form.Control.Feedback>
+						<div className='d-flex justify-content-end'>
+							<Button
+								className='me-2'
+								variant='secondary'
+								type='button'
+								onClick={handleClose}
+							>
+								{t('modals.cancelButton')}
+							</Button>
+							<Button
+								variant='primary'
+								type='submit'
+								disabled={formik.isSubmitting}
+							>
+								{t('modals.confirmButton')}
+							</Button>
+						</div>
+					</Form.Group>
+				</Form>
+			</BootstrapModal.Body>
+		</>
+	)
+}
 
 const RemoveChannelForm = ({ handleClose }) => {
-  const [loading, setLoading] = useState(false);
-  const { t } = useTranslation();
-  const { getToken } = useAuth();
+	const [loading, setLoading] = useState(false)
+	const { t } = useTranslation()
+	const { getToken } = useAuth()
 
-  const channelId = useSelector((state) => state.modals.modal.extra?.channelId);
-  const handleRemove = async () => {
-    setLoading(true);
-    try {
-      const header = { Authorization: `Bearer ${getToken()}` };
-      await axios.delete(`${routes.channelsPath()}/${channelId}`, {
-        headers: header,
-      });
-      toast.success(t('toast.remove'));
-      handleClose();
-    } catch (error) {
-      if (!error.isAxiosError) {
-        toast.error(t('errors.unknown'));
-      } else {
-        toast.error(t('errors.network'));
-      }
-      setLoading(false);
-      throw error;
-    }
-  };
+	const channelId = useSelector(state => state.modals.modal.extra?.channelId)
+	const handleRemove = async () => {
+		setLoading(true)
+		try {
+			const header = { Authorization: `Bearer ${getToken()}` }
+			await axios.delete(`${routes.channelsPath()}/${channelId}`, {
+				headers: header,
+			})
+			toast.success(t('toast.remove'))
+			handleClose()
+		} catch (error) {
+			if (!error.isAxiosError) {
+				toast.error(t('errors.unknown'))
+			} else {
+				toast.error(t('errors.network'))
+			}
+			setLoading(false)
+			throw error
+		}
+	}
 
-  return (
-    <>
-      <BootstrapModal.Header>
-        <BootstrapModal.Title>{t('modals.removeTitle')}</BootstrapModal.Title>
-        <Button
-          variant="close"
-          type="button"
-          onClick={handleClose}
-          aria-label="Close"
-          data-bs-dismiss="modal"
-        />
-      </BootstrapModal.Header>
-      <BootstrapModal.Body>
-        <p className="lead">{t('modals.sure')}</p>
-        <div className="d-flex justify-content-end">
-          <Button
-            className="me-2"
-            variant="secondary"
-            type="button"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('modals.cancelButton')}
-          </Button>
-          <Button
-            variant="danger"
-            type="button"
-            onClick={handleRemove}
-            disabled={loading}
-          >
-            {t('modals.confirmRemove')}
-          </Button>
-        </div>
-      </BootstrapModal.Body>
-    </>
-  );
-};
+	return (
+		<>
+			<BootstrapModal.Header>
+				<BootstrapModal.Title>{t('modals.removeTitle')}</BootstrapModal.Title>
+				<Button
+					variant='close'
+					type='button'
+					onClick={handleClose}
+					aria-label='Close'
+					data-bs-dismiss='modal'
+				/>
+			</BootstrapModal.Header>
+			<BootstrapModal.Body>
+				<p className='lead'>{t('modals.sure')}</p>
+				<div className='d-flex justify-content-end'>
+					<Button
+						className='me-2'
+						variant='secondary'
+						type='button'
+						onClick={handleClose}
+						disabled={loading}
+					>
+						{t('modals.cancelButton')}
+					</Button>
+					<Button
+						variant='danger'
+						type='button'
+						onClick={handleRemove}
+						disabled={loading}
+					>
+						{t('modals.confirmRemove')}
+					</Button>
+				</div>
+			</BootstrapModal.Body>
+		</>
+	)
+}
 
 const RenameChannelForm = ({ handleClose }) => {
-  const channels = useSelector((state) => state.channels.channels);
-  const channelNames = channels.map(({ name }) => name);
-  const channelId = useSelector((state) => state.modals.modal.extra?.channelId);
-  const channel = channels.find(({ id }) => channelId === id);
-  const inputRef = useRef(null);
-  const { t } = useTranslation();
-  const { getToken } = useAuth();
-  const filter = useFilter();
+	const channels = useSelector(state => state.channels.channels)
+	const channelNames = channels.map(({ name }) => name)
+	const channelId = useSelector(state => state.modals.modal.extra?.channelId)
+	const channel = channels.find(({ id }) => channelId === id)
+	const inputRef = useRef(null)
+	const { t } = useTranslation()
+	const { getToken } = useAuth()
+	const filter = useFilter()
 
-  const getValidationSchema = (channelsNames) => yup.object().shape({
-    name: yup
-      .string()
-      .trim()
-      .required(t('modals.required'))
-      .min(1, t('modals.minName'))
-      .max(20, t('modals.maxName'))
-      .notOneOf(channelsNames, t('modals.uniq')),
-  });
+	const getValidationSchema = channelsNames =>
+		yup.object().shape({
+			name: yup
+				.string()
+				.trim()
+				.required(t('modals.required'))
+				.min(1, t('modals.minName'))
+				.max(20, t('modals.maxName'))
+				.notOneOf(channelsNames, t('modals.uniq')),
+		})
 
-  useEffect(() => {
-    setTimeout(() => inputRef.current.select());
-  }, []);
-  const formik = useFormik({
-    initialValues: {
-      name: channel.name,
-    },
-    validationSchema: getValidationSchema(channelNames),
-    onSubmit: async ({ name }) => {
-      const header = { Authorization: `Bearer ${getToken()}` };
-      const filteredName = filter.clean(name);
-      const data = { name: filteredName, id: channelId };
-      getValidationSchema(channelNames).validateSync({ name: filteredName });
-      await axios.patch(`${routes.channelsPath()}/${channelId}`, data, {
-        headers: header,
-      });
-      toast.success(t('toast.rename'));
-      handleClose();
-    },
-    validateOnBlur: false,
-    validateOnChange: false,
-  });
+	useEffect(() => {
+		setTimeout(() => inputRef.current.select())
+	}, [])
+	const formik = useFormik({
+		initialValues: {
+			name: channel.name,
+		},
+		validationSchema: getValidationSchema(channelNames),
+		onSubmit: async ({ name }) => {
+			const header = { Authorization: `Bearer ${getToken()}` }
+			const filteredName = filter.clean(name)
+			const data = { name: filteredName, id: channelId }
+			getValidationSchema(channelNames).validateSync({ name: filteredName })
+			await axios.patch(`${routes.channelsPath()}/${channelId}`, data, {
+				headers: header,
+			})
+			toast.success(t('toast.rename'))
+			handleClose()
+		},
+		validateOnBlur: false,
+		validateOnChange: false,
+	})
 
-  return (
-    <>
-      <BootstrapModal.Header>
-        <BootstrapModal.Title>{t('modals.renameTitle')}</BootstrapModal.Title>
-        <Button
-          variant="close"
-          type="button"
-          onClick={handleClose}
-          aria-label="Close"
-          data-bs-dismiss="modal"
-        />
-      </BootstrapModal.Header>
-      <BootstrapModal.Body>
-        <Form onSubmit={formik.handleSubmit}>
-          <Form.Group>
-            <Form.Control
-              className="mb-2"
-              disabled={formik.isSubmitting}
-              ref={inputRef}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.name}
-              isInvalid={(formik.errors.name && formik.touched.name) || !!formik.status}
-              name="name"
-              id="name"
-            />
-            <label className="visually-hidden" htmlFor="name">{t('modals.modalName')}</label>
-            <Form.Control.Feedback type="invalid">
-              {formik.errors.name || formik.status}
-            </Form.Control.Feedback>
-            <div className="d-flex justify-content-end">
-              <Button
-                className="me-2"
-                variant="secondary"
-                type="button"
-                onClick={handleClose}
-              >
-                {t('modals.cancelButton')}
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                disabled={formik.isSubmitting}
-              >
-                {t('modals.confirmButton')}
-              </Button>
-            </div>
-          </Form.Group>
-        </Form>
-      </BootstrapModal.Body>
-    </>
-  );
-};
+	return (
+		<>
+			<BootstrapModal.Header>
+				<BootstrapModal.Title>{t('modals.renameTitle')}</BootstrapModal.Title>
+				<Button
+					variant='close'
+					type='button'
+					onClick={handleClose}
+					aria-label='Close'
+					data-bs-dismiss='modal'
+				/>
+			</BootstrapModal.Header>
+			<BootstrapModal.Body>
+				<Form onSubmit={formik.handleSubmit}>
+					<Form.Group>
+						<Form.Control
+							className='mb-2'
+							disabled={formik.isSubmitting}
+							ref={inputRef}
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.name}
+							isInvalid={
+								(formik.errors.name && formik.touched.name) || !!formik.status
+							}
+							name='name'
+							id='name'
+						/>
+						<label className='visually-hidden' htmlFor='name'>
+							{t('modals.modalName')}
+						</label>
+						<Form.Control.Feedback type='invalid'>
+							{formik.errors.name || formik.status}
+						</Form.Control.Feedback>
+						<div className='d-flex justify-content-end'>
+							<Button
+								className='me-2'
+								variant='secondary'
+								type='button'
+								onClick={handleClose}
+							>
+								{t('modals.cancelButton')}
+							</Button>
+							<Button
+								variant='primary'
+								type='submit'
+								disabled={formik.isSubmitting}
+							>
+								{t('modals.confirmButton')}
+							</Button>
+						</div>
+					</Form.Group>
+				</Form>
+			</BootstrapModal.Body>
+		</>
+	)
+}
 
 const mapping = {
-  addChannel: AddChannelForm,
-  removeChannel: RemoveChannelForm,
-  renameChannel: RenameChannelForm,
-};
+	addChannel: AddChannelForm,
+	removeChannel: RemoveChannelForm,
+	renameChannel: RenameChannelForm,
+}
 
 const Modal = () => {
-  const dispatch = useDispatch();
-  const isOpened = useSelector((state) => state.modals.modal.isOpened);
+	const dispatch = useDispatch()
+	const isOpened = useSelector(state => state.modals.modal.isOpened)
 
-  const handleClose = () => {
-    dispatch(modalsActions.closeModal());
-  };
-  const modalType = useSelector((state) => state.modals.modal.type);
+	const handleClose = () => {
+		dispatch(modalsActions.closeModal())
+	}
+	const modalType = useSelector(state => state.modals.modal.type)
 
-  const Component = mapping[modalType];
+	const Component = mapping[modalType]
 
-  return (
-    <BootstrapModal show={isOpened} onHide={handleClose} centered>
-      {Component && <Component handleClose={handleClose} />}
-    </BootstrapModal>
-  );
-};
+	return (
+		<BootstrapModal show={isOpened} onHide={handleClose} centered>
+			{Component && <Component handleClose={handleClose} />}
+		</BootstrapModal>
+	)
+}
 
-export default Modal;
+export default Modal

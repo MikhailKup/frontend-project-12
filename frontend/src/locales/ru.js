@@ -1,75 +1,65 @@
-const ru = {
+export default {
   translation: {
-    nav: {
-      logo: 'Hexlet chat',
-      exit: 'Выйти',
+    languages: {
+      en: 'eng',
+      ru: 'рус',
     },
-    login: {
-      name: 'Ваш ник',
+    loginPage: {
+      username: 'Ваш ник',
       password: 'Пароль',
-      enter: 'Войти',
-      noAccount: 'Нет аккаунта?',
-      register: 'Регистрация',
-      error: 'Неверные имя пользователя или пароль',
+      logIn: 'Войти',
+      invalidFeedback: 'Неверные имя пользователя или пароль',
     },
-    messages: {
-      message_one: '{{count}} сообщение',
-      message_few: '{{count}} сообщения',
-      message_many: '{{count}} сообщений',
-      send: 'Отправить',
-      placeholder: 'Введите сообщение...',
-      newMessage: 'Новое сообщение',
-    },
-    loading: 'Загрузка...',
-    modals: {
-      modalName: 'Имя канала',
-      addTitle: 'Добавить канал',
-      required: 'Обязательное поле',
-      minName: 'Не менее 1 символа',
-      maxName: 'Не более 20 символов',
-      uniq: 'Должно быть уникальным',
-      cancellButton: 'Отменить',
-      confirmButton: 'Отправить',
-      removeTitle: 'Удалить Канал',
-      sure: 'Уверены?',
-      confirmRemove: 'Удалить',
-      renameTitle: 'Переименовать канал',
-    },
-    channel: {
-      delete: 'Удалить',
-      rename: 'Переименовать',
+    mainPage: {
+      logOut: 'Выйти',
+      messages: {
+        counter: {
+          count_one: '{{count}} сообщение',
+          count_few: '{{count}} сообщения',
+          count_many: '{{count}} сообщений',
+        },
+        input: 'Введите сообщение...',
+      },
       channels: 'Каналы',
-      channelManagement: 'Управление каналом',
+      channelControl: 'Управление каналом',
+      modals: {
+        channelName: 'Имя канала',
+        addChannel: 'Добавить канал',
+        removeChannel: 'Удалить канал',
+        renameChannel: 'Переименовать канал',
+        cancel: 'Отменить',
+        send: 'Отправить',
+        ensuring: 'Уверены?',
+        remove: 'Удалить',
+        edit: 'Переименовать',
+        notUnique: 'Должно быть уникальным',
+      },
     },
-    schema: {
-      nameMin: 'От 3 до 20 символов',
-      nameMax: 'От 3 до 20 символов',
-      required: 'Обязательное поле',
-      passwordMin: 'Не менее 6 символов',
-      confirmPassword: 'Пароли должны совпадать',
-    },
-    signup: {
-      register: 'Регистрация',
-      name: 'Имя пользователя',
+    signUpPage: {
+      signingUp: 'Регистрация',
+      toSignUp: 'Зарегистрироваться',
+      username: 'Имя пользователя',
       password: 'Пароль',
-      passwordConfirm: 'Подтвердите пароль',
-      confirm: 'Зарегистрироваться',
-      userExist: 'Такой пользователь уже существует',
-      networkError: 'Ошибка сети',
+      confirmPassword: 'Подтвердите пароль',
+    },
+    validationFeedback: {
+      invalidLength: 'От 3 до 20 символов',
+      invalidPassword: 'Не менее 6 символов',
+      mustMatch: 'Пароли должны совпадать',
+      userExists: 'Такой пользователь уже существует',
+      required: 'Обязательное поле',
     },
     toast: {
-      add: 'Канал создан',
-      rename: 'Канал переименован',
-      remove: 'Канал удалён',
-      unknown: 'Неизвестная ошибка',
-      network: 'Ошибка соединения',
+      channelCreated: 'Канал создан',
+      channelRenamed: 'Канал переименован',
+      channelRemoved: 'Канал удалён',
+      connectionError: 'Ошибка соединения',
     },
-    notFoundPage: {
-      notFound: 'Страница не найдена',
-      walkTo: 'Но вы можете перейти',
-      teleport: 'на главную страницу',
+    unknownError: 'Что-то пошло не так...',
+    errorPage: {
+      failure: 'Неудача...',
+      pageNotFound: 'Страница не найдена:(',
+      toTheMainPage: 'Перейти на главную',
     },
   },
 };
-
-export default ru;
