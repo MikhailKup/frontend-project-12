@@ -9,14 +9,29 @@ A convenient and intuitive application that allows you to chat with friends, col
 
 ## Project start commands
 
-* Back-end start
+* Install command
 ```
-npm start
-```
-
-* Front-end start
-```
-cd frontend && npm start
+make install
 ```
 
-## Preview here:
+* Build command
+```
+make build
+```
+
+* Start command
+```
+make start
+```
+
+## Stack:
+* React / React Hooks - user interfaces
+* Redux / Redux Toolkit - state container
+* Bootstrap - CSS Framework
+* Socket.io - WebSocket based browser-server communication
+* Axios - HTTP requests
+* Formik - building forms on React
+* Yup - form validation
+* I18next - manage text
+* React-toastify - pop-up notifications
+* Leo-profanity - profanity filter
