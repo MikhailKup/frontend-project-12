@@ -1,4 +1,5 @@
 {
+  "homepage": "https://MikhailKup.github.io/frontend-project-12",
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -28,6 +29,7 @@
     "yup": "^1.4.0"
   },
   "scripts": {
+    "deploy": "npm run build && gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
